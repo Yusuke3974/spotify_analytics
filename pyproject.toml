@@ -1,0 +1,31 @@
+[project]
+name = "spotify-analytics"
+version = "0.1.0"
+description = "Spotifyプレイリスト分析ツール"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "python-multipart>=0.0.6",
+    "pydantic>=2.5.3",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.26.0",
+    "spotipy>=2.23.0",
+    "pandas>=2.1.4",
+    "numpy>=1.26.3",
+    "scikit-learn>=1.4.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = []
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
