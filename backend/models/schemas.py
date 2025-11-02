@@ -53,3 +53,39 @@ class PlaylistAnalysisResponse(BaseModel):
     tracks: List[TrackResponse]
     features: List[AudioFeaturesResponse]
     stats: PlaylistStats
+
+
+class GenreDistributionItem(BaseModel):
+    """ジャンル分布のアイテム"""
+    genre: str
+    count: int
+
+
+class MoodMapItem(BaseModel):
+    """ムードマップのアイテム"""
+    track: str
+    valence: float
+    energy: float
+
+
+class TempoDistributionItem(BaseModel):
+    """テンポ分布のアイテム"""
+    range: str
+    count: int
+
+
+class TempoTrendsResponse(BaseModel):
+    """テンポトレンドのレスポンス"""
+    mean_tempo: float
+    std_tempo: float
+    distribution: List[TempoDistributionItem]
+
+
+class AnalysisHistoryResponse(BaseModel):
+    """分析履歴のレスポンス"""
+    id: int
+    user_id: str
+    analysis_type: str
+    time_range: str
+    result: Dict[str, Any]
+    created_at: str

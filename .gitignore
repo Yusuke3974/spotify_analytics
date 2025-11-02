@@ -30,7 +30,11 @@ env/
 
 # Environment variables
 .env
+.env.*
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # IDE
 .vscode/
@@ -38,23 +42,72 @@ env/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
+*.sql
 
+# Testing & Coverage
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Type checking & Linting
+.ruff_cache/
+.pytype/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Spotify認証キャッシュ
+.cache-spotify
+.cache/
 
 # Logs
 *.log
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Next.js (旧ファイル)
+# Next.js
 .next/
 out/
 node_modules/
-package-lock.json
-yarn.lock
+.pnpm-store/
+.swc/
+.vercel
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# CSVデータファイル（必要に応じて除外）
+tracks_basic.csv
+tracks_with_features.csv
+*.csv

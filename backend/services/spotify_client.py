@@ -4,11 +4,11 @@ Spotify API サービス - spotipyを使用したAPI連携
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import pandas as pd
 import numpy as np
 
-from backend.models import (
+from models.schemas import (
     PlaylistResponse,
     TrackResponse,
     AudioFeaturesResponse,
@@ -28,6 +28,10 @@ class SpotifyService:
             access_token: Spotify OAuthアクセストークン
         """
         self.client = spotipy.Spotify(auth=access_token)
+    
+    def get_current_user(self):
+        """現在のユーザー情報を取得"""
+        return self.client.current_user()
 
     async def get_user_playlists(self) -> List[PlaylistResponse]:
         """ユーザーのプレイリスト一覧を取得"""
@@ -207,3 +211,90 @@ class SpotifyService:
             features=features,
             stats=stats,
         )
+
+    def get_top_tracks_with_genres(
+        self, limit: int = 50, time_range: str = "medium_term"
+    ) -> List[Dict[str, Any]]:
+        """
+        上位トラックを取得し、アーティストのジャンル情報を含める
+
+        Args:
+            limit: 取得するトラック数
+            time_range: 期間 ("short_term", "medium_term", "long_term")
+
+        Returns:
+            トラック情報のリスト（各要素は{"track": str, "valence": float, "energy": float, "tempo": float, "genres": List[str]}を含む）
+        """
+        results = self.client.current_user_top_tracks(
+            limit=limit, time_range=time_range
+        )
+        tracks_data = []
+
+        for item in results["items"]:
+            track_id = item["id"]
+            track_name = item["name"]
+            artist_ids = [artist["id"] for artist in item["artists"]]
+
+            # アーティスト情報を取得してジャンルを抽出
+            genres = set()
+            for artist_id in artist_ids[:5]:  # 最大5アーティストまで
+                try:
+                    artist = self.client.artist(artist_id)
+                    genres.update(artist.get("genres", []))
+                except Exception:
+                    continue
+
+            # オーディオ特徴を取得
+            audio_features = self.client.audio_features([track_id])[0]
+            if not audio_features:
+                continue
+
+            tracks_data.append(
+                {
+                    "track": track_name,
+                    "track_id": track_id,
+                    "genres": list(genres),
+                    "valence": audio_features.get("valence"),
+                    "energy": audio_features.get("energy"),
+                    "tempo": audio_features.get("tempo"),
+                }
+            )
+
+        return tracks_data
+
+    def get_user_top_tracks_with_features(
+        self, limit: int = 50, time_range: str = "medium_term"
+    ) -> List[Dict[str, Any]]:
+        """
+        上位トラックをオーディオ特徴量付きで取得
+
+        Args:
+            limit: 取得するトラック数
+            time_range: 期間 ("short_term", "medium_term", "long_term")
+
+        Returns:
+            トラック情報のリスト（各要素は{"track": str, "valence": float, "energy": float, "tempo": float}を含む）
+        """
+        results = self.client.current_user_top_tracks(
+            limit=limit, time_range=time_range
+        )
+        tracks_data = []
+
+        track_ids = [item["id"] for item in results["items"]]
+        audio_features_list = self.client.audio_features(track_ids)
+
+        for item, features in zip(results["items"], audio_features_list):
+            if not features:
+                continue
+
+            tracks_data.append(
+                {
+                    "track": item["name"],
+                    "track_id": item["id"],
+                    "valence": features.get("valence"),
+                    "energy": features.get("energy"),
+                    "tempo": features.get("tempo"),
+                }
+            )
+
+        return tracks_data
